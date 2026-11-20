@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101412">
+  <meta name="description" content="A synthetic CYB 305 digital forensics lab: verified raw and E01 acquisition, SHA-256 checks, and a careful account of what the evidence does and does not show.">
+  <title>W4-USB001 | A Synthetic Forensics Lab</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="W4-USB001, back to top"><span class="mark">[ W4 ]</span><span>FIELD NOTES <span class="muted">/ DIGITAL FORENSICS</span></span></a>
+    <nav aria-label="Main navigation"><a href="#method">Method</a><a href="#integrity">Integrity</a><a href="#gallery">Screenshots</a><a href="#findings">Findings</a></nav>
+    <button class="theme-toggle" type="button" aria-label="Switch color theme" title="Switch color theme">◐ <span>Theme</span></button>
+  </header>
+
+  <main id="main">
+    <section class="hero section-wrap" id="top">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> CYB 305 <span class="slash">/</span> WEEK 04 <span class="slash">/</span> CASE W4-USB001</p>
+        <h1>Forensic acquisition<br>of a <em>synthetic</em> USB image.</h1>
+        <p class="hero-summary">I verified raw and E01 copies of a teaching image, checked the exported files, and kept the conclusions within what the evidence can show.</p>
+        <a class="text-link" href="#method">Follow the examination <span aria-hidden="true">↓</span></a>
+      </div>
+      <div class="hero-card" aria-label="Case summary">
+        <div class="card-top"><span>CASE FILE</span><span>TRAINING ONLY</span></div>
+        <div class="readout"><span>CASE ID</span><strong>W4-USB001</strong></div>
+        <div class="readout"><span>IMAGE</span><strong>USB001_Source.dd</strong></div>
+        <div class="readout"><span>FILESYSTEM</span><strong>FAT16</strong></div>
+        <div class="readout"><span>EXAMINATION</span><strong>12 NOV 2026</strong></div>
+        <div class="card-bottom"><span>NO REAL SUSPECT</span><span>NO REAL DATA</span></div>
+      </div>
+      <div class="badge-row" aria-label="Lab tools and topics"><span>FTK IMAGER 8.3</span><span>FAT16</span><span>E01 / DD</span><span>SHA-256</span><span>CYB 305</span></div>
+    </section>
+
+    <section class="section-wrap intro-section" id="about">
+      <div class="section-heading"><span class="section-index">01</span><h2>What this lab is about</h2></div>
+      <p class="lead">Digital forensics is careful work with digital evidence: preserve the original, record what you do, and distinguish an observation from a conclusion.</p>
+      <div class="concept-grid">
+        <article class="concept"><span class="concept-symbol">01 /</span><h3>Preserve first</h3><p>I began with a supplied image file, recorded its hash and size, then worked from it in FTK Imager. A matching hash before and after is evidence that the file’s bytes did not change during this exercise.</p></article>
+        <article class="concept"><span class="concept-symbol">02 /</span><h3>Raw vs E01</h3><p>A raw image is a direct byte-for-byte copy. E01 is a forensic container that can compress the image and store metadata and verification values. Their file hashes differ, even when E01 verifies the same underlying image data.</p></article>
+        <article class="concept"><span class="concept-symbol">03 /</span><h3>What a hash says</h3><p>SHA-256 produces a digest that helps detect whether bytes differ from a recorded value. It does not show who handled a file, prove where it came from, or establish that a statement in it is true.</p></article>
+        <article class="concept"><span class="concept-symbol">04 /</span><h3>Deleted, not necessarily gone</h3><p>In FAT, a deleted directory entry is marked with byte E5 at the start of its name. Here, the entry still points to a 161-byte synthetic note that was exportable. A deleted marker alone says nothing about who deleted it.</p></article>
+        <article class="concept"><span class="concept-symbol">05 /</span><h3>Slack &amp; unallocated</h3><p>File slack is the unused tail of the storage cluster assigned to a file; unallocated space is storage not currently assigned to a live file. The image exposes both as areas to examine, but this lab does not claim hidden real-world content from them.</p></article>
+        <article class="concept concept-note"><span class="concept-symbol">SCOPE /</span><h3>A constructed exercise</h3><p>This is a synthetic teaching image with authored notes and timestamps. No physical USB device, real user, or real suspect is involved.</p></article>
+      </div>
+    </section>
+
+    <section class="section-wrap method-section" id="method">
+      <div class="section-heading"><span class="section-index">02</span><h2>What I did</h2></div>
+      <p class="section-note">The seven steps follow the method documented in my lab report.</p>
+      <ol class="timeline">
+        <li><span class="step-no">01</span><div><h3>Set a baseline</h3><p>Recorded the source image’s SHA-256 and byte length before opening it.</p></div><span class="step-tag">SOURCE</span></li>
+        <li><span class="step-no">02</span><div><h3>Inspect the image</h3><p>Loaded it as an image file in FTK Imager and reviewed the FAT16 tree, directory entries, and BUDGET.CSV.</p></div><span class="step-tag">FAT16</span></li>
+        <li><span class="step-no">03</span><div><h3>Create a raw image</h3><p>Made a full dd copy with verification enabled and independently compared its SHA-256 with the source.</p></div><span class="step-tag">DD</span></li>
+        <li><span class="step-no">04</span><div><h3>Create an E01 image</h3><p>Created a full E01 copy with verification enabled, then hashed the E01 container file.</p></div><span class="step-tag">E01</span></li>
+        <li><span class="step-no">05</span><div><h3>Verify again</h3><p>Reopened E01, confirmed the BUDGET.CSV preview, and ran Verify Drive/Image.</p></div><span class="step-tag">VERIFY</span></li>
+        <li><span class="step-no">06</span><div><h3>Export selected files</h3><p>Exported three live files and the deleted entry, then checked lengths and SHA-256 against fixture references.</p></div><span class="step-tag">EXPORT</span></li>
+        <li><span class="step-no">07</span><div><h3>Record and recheck</h3><p>Saved the directory listing, acquisition logs, and output hash manifest; re-hashed the source at the end.</p></div><span class="step-tag">RECORD</span></li>
+      </ol>
+    </section>
+
+    <section class="results-band">
+      <div class="section-wrap">
+        <div class="section-heading"><span class="section-index">03</span><h2>What I achieved</h2></div>
+        <p class="section-note">Each metric below is from the supplied report, logs, or hash manifest.</p>
+        <div class="metrics-grid">
+          <div class="metric"><strong>UNCHANGED</strong><span>Source SHA-256 matched at start and finish</span></div>
+          <div class="metric"><strong>34,816</strong><span>Sectors in each full image</span></div>
+          <div class="metric"><strong>0</strong><span>Bad blocks reported in verification</span></div>
+          <div class="metric"><strong>1:1</strong><span>Raw image SHA-256 equals source</span></div>
+          <div class="metric"><strong>MATCH</strong><span>E01 stored, computed &amp; report MD5/SHA-1</span></div>
+          <div class="metric"><strong>4 / 4</strong><span>Exports matched reference lengths and hashes</span></div>
+          <div class="metric metric-wide"><strong>161 bytes</strong><span>Deleted synthetic note retained and exported; its text mentions BUDGET.CSV and a USB device.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap integrity-section" id="integrity">
+      <div class="section-heading"><span class="section-index">04</span><h2>Integrity ledger</h2></div>
+      <p class="section-note">SHA-256 values are selectable and copyable. The E01 digest identifies the container file, not its decompressed image stream.</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th scope="col">Item</th><th scope="col">Bytes</th><th scope="col">SHA-256</th><th scope="col"><span class="sr-only">Copy hash</span></th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Source · start &amp; end</th><td>17,825,792</td><td><code>A5172A7A71583D18365618FC5D8285EDED5D27E9B4CA7E8E6D3D3C68E0C1D26F</code></td><td><button class="copy-button" data-copy="A5172A7A71583D18365618FC5D8285EDED5D27E9B4CA7E8E6D3D3C68E0C1D26F" type="button">Copy</button></td></tr>
+            <tr><th scope="row">Raw · USB001.001</th><td>17,825,792</td><td><code>A5172A7A71583D18365618FC5D8285EDED5D27E9B4CA7E8E6D3D3C68E0C1D26F</code></td><td><button class="copy-button" data-copy="A5172A7A71583D18365618FC5D8285EDED5D27E9B4CA7E8E6D3D3C68E0C1D26F" type="button">Copy</button></td></tr>
+            <tr><th scope="row">E01 · container</th><td>36,629</td><td><code>D977C42DF3A8BE68D511B124A9A2800897DD98652AD677858FA83A79EA1F964F</code></td><td><button class="copy-button" data-copy="D977C42DF3A8BE68D511B124A9A2800897DD98652AD677858FA83A79EA1F964F" type="button">Copy</button></td></tr>
+            <tr><th scope="row">README.TXT · live</th><td>140</td><td><code>BAF56F58798703E9CC36A5CBF1834C3F60D89A73415B7925C82ECD652E6FD0EA</code></td><td><button class="copy-button" data-copy="BAF56F58798703E9CC36A5CBF1834C3F60D89A73415B7925C82ECD652E6FD0EA" type="button">Copy</button></td></tr>
+            <tr><th scope="row">BUDGET.CSV · live</th><td>67</td><td><code>FE89E1116DDBE63D6D8BA53F4670D30AD2933FA55FFFD4033333C854E83B68B0</code></td><td><button class="copy-button" data-copy="FE89E1116DDBE63D6D8BA53F4670D30AD2933FA55FFFD4033333C854E83B68B0" type="button">Copy</button></td></tr>
+            <tr><th scope="row">NOTES.TXT · live</th><td>87</td><td><code>D3AB8D85E877F2D1BB79EEDD2712316C6B45661688000883EE479012217BB00F</code></td><td><button class="copy-button" data-copy="D3AB8D85E877F2D1BB79EEDD2712316C6B45661688000883EE479012217BB00F" type="button">Copy</button></td></tr>
+            <tr><th scope="row">!RANSFER.TXT · deleted</th><td>161</td><td><code>34222CDDB3F993289AA82C051D123DD978C7A20650B6C337266B5820549D4A00</code></td><td><button class="copy-button" data-copy="34222CDDB3F993289AA82C051D123DD978C7A20650B6C337266B5820549D4A00" type="button">Copy</button></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="integrity-footnote"><span aria-hidden="true">↳</span> All 11 entries in the output manifest and the expected source hash were recomputed locally; all matched.</p>
+    </section>
+
+    <section class="gallery-section" id="gallery">
+      <div class="section-wrap">
+        <div class="section-heading"><span class="section-index">05</span><h2>Examination screenshots</h2></div>
+        <p class="section-note">The 27 images are web-sized copies of the report’s Appendix B figures. Select any image to zoom.</p>
+        <div class="gallery-grid">
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 1: Baseline SHA-256 and length before work"><img src="assets/01_Source_Baseline_SHA256.png" alt="PowerShell baseline SHA-256 and byte length for USB001_Source.dd." loading="lazy"></button><figcaption><span>FIG. 01</span>Baseline SHA-256 and source length</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 2: FTK Imager version 8.3.0.27"><img src="assets/02_FTK_Imager_Version_8.3.0.27.png" alt="FTK Imager About dialog showing version 8.3.0.27." loading="lazy"></button><figcaption><span>FIG. 02</span>FTK Imager version 8.3.0.27</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 3: Root listing and E5 deleted-entry marker"><img src="assets/03_Evidence_Tree_Root_Listing_Deleted_Entry.png" alt="Evidence tree, root folder listing, and hex view showing E5 on the deleted entry." loading="lazy"></button><figcaption><span>FIG. 03</span>Root listing and deleted-entry E5 marker</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 4: FAT16 objects, VBR, FAT1, FAT2 and README bytes"><img src="assets/04_FAT16_Filesystem_Metadata_VBR_FAT1_FAT2.png" alt="FAT16 filesystem objects including VBR, FAT1, FAT2 and README.TXT bytes." loading="lazy"></button><figcaption><span>FIG. 04</span>FAT16 filesystem objects and metadata</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 5: Unallocated space inside the FAT16 partition"><img src="assets/05_Partition_Unallocated_Space.png" alt="FTK view of unallocated space inside the FAT16 partition." loading="lazy"></button><figcaption><span>FIG. 05</span>Unallocated space inside the partition</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 6: Unpartitioned space showing MBR"><img src="assets/06_Unpartitioned_Space_MBR.png" alt="FTK view of the MBR in unpartitioned space." loading="lazy"></button><figcaption><span>FIG. 06</span>MBR in unpartitioned space</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 7: Unallocated space outside the partition"><img src="assets/07_Unpartitioned_Unallocated_Space.png" alt="FTK view of unallocated space outside the partition." loading="lazy"></button><figcaption><span>FIG. 07</span>Unallocated space outside the partition</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 8: BUDGET.CSV text preview"><img src="assets/08_BUDGET_CSV_Text_Preview_67_bytes.png" alt="Text preview of the 67-byte synthetic BUDGET.CSV file." loading="lazy"></button><figcaption><span>FIG. 08</span>BUDGET.CSV text preview</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 9: Raw verification, 34,816 sectors, no bad blocks"><img src="assets/09_Raw_Verify_Results_34816_Sectors.png" alt="FTK raw image verification result showing 34,816 sectors, matching hashes and no bad blocks." loading="lazy"></button><figcaption><span>FIG. 09</span>Raw verification · sectors and bad blocks</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 10: Raw Image Summary case information"><img src="assets/10_Raw_Image_Summary_Case_Information.png" alt="Raw Image Summary with case information." loading="lazy"></button><figcaption><span>FIG. 10</span>Raw image summary and case information</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 11: Raw output hash equals source"><img src="assets/11_Raw_vs_Source_SHA256_Match.png" alt="PowerShell comparison showing the raw output SHA-256 equals the source." loading="lazy"></button><figcaption><span>FIG. 11</span>Raw image and source SHA-256 match</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 12: E01 verification at creation"><img src="assets/12_E01_Verify_Results_At_Creation.png" alt="E01 verification showing matching stored, computed, and report hashes." loading="lazy"></button><figcaption><span>FIG. 12</span>E01 verification at creation</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 13: E01 Image Summary case information"><img src="assets/13_E01_Image_Summary_Case_Information.png" alt="E01 Image Summary with case information." loading="lazy"></button><figcaption><span>FIG. 13</span>E01 image summary and case information</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 14: E01 hashes and acquisition time"><img src="assets/14_E01_Image_Summary_Hashes_And_Times.png" alt="E01 Image Summary showing source geometry, hashes, and acquisition time." loading="lazy"></button><figcaption><span>FIG. 14</span>E01 summary, hashes and acquisition time</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 15: E01 container SHA-256"><img src="assets/15_E01_Container_File_SHA256.png" alt="E01 folder listing and SHA-256 of the container file." loading="lazy"></button><figcaption><span>FIG. 15</span>E01 container file SHA-256</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 16: Verify Drive Image on reopened E01"><img src="assets/16_E01_Reopened_Verify_Results.png" alt="FTK Verify Drive/Image results for the reopened E01." loading="lazy"></button><figcaption><span>FIG. 16</span>Verification after reopening E01</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 17: E01 beside source with identical BUDGET preview"><img src="assets/17_E01_Evidence_Tree_BUDGET_CSV_Preview.png" alt="E01 evidence tree beside source and matching BUDGET.CSV preview." loading="lazy"></button><figcaption><span>FIG. 17</span>E01 and source BUDGET.CSV preview</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 18: Live files selected for export"><img src="assets/18_Live_Files_Selected_For_Export.png" alt="Live files selected for export from the E01 image." loading="lazy"></button><figcaption><span>FIG. 18</span>Live files selected for export</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 19: Exported live file lengths and SHA-256"><img src="assets/19_Live_Exports_Lengths_And_SHA256.png" alt="Exported live file lengths and SHA-256 values." loading="lazy"></button><figcaption><span>FIG. 19</span>Live export lengths and hashes</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 20: Deleted entry contents in Hex view"><img src="assets/20_Deleted_File_Content_Hex_View.png" alt="Hex view of the contents retained in deleted entry !RANSFER.TXT." loading="lazy"></button><figcaption><span>FIG. 20</span>Deleted-entry content in Hex view</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 21: Deleted entry size, cluster and sector"><img src="assets/21_Deleted_File_Properties.png" alt="Properties for the 161-byte deleted entry, including start cluster and sector." loading="lazy"></button><figcaption><span>FIG. 21</span>Deleted-entry properties</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 22: Deleted export length and SHA-256"><img src="assets/22_Deleted_Export_Length_And_SHA256.png" alt="Length and SHA-256 for the exported deleted synthetic note." loading="lazy"></button><figcaption><span>FIG. 22</span>Deleted export length and hash</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 23: Acquisition logs copied into Output Records"><img src="assets/23_Records_Folder_Log_Copies.png" alt="FTK acquisition log copies in the Output Records folder." loading="lazy"></button><figcaption><span>FIG. 23</span>Acquisition logs in Records</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 24: Final source SHA-256 and length unchanged"><img src="assets/24_Final_Source_Hash_Unchanged.png" alt="Final source length and SHA-256 showing the source remained unchanged." loading="lazy"></button><figcaption><span>FIG. 24</span>Final source hash unchanged</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 25: Initial output hash manifest"><img src="assets/25_Output_Hash_Manifest_Initial.png" alt="Initial output hash manifest before exporting the directory listing." loading="lazy"></button><figcaption><span>FIG. 25</span>Initial output hash manifest</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 26: Final output hash manifest"><img src="assets/26_Output_Hash_Manifest_Final.png" alt="Final output hash manifest including Directory Listing.csv." loading="lazy"></button><figcaption><span>FIG. 26</span>Final output hash manifest</figcaption></figure>
+          <figure><button class="gallery-image" type="button" aria-label="Zoom figure 27: Raw acquisition and verification timestamps"><img src="assets/27_Raw_Acquisition_Timestamps.png" alt="Acquisition and verification timestamps from the raw FTK log." loading="lazy"></button><figcaption><span>FIG. 27</span>Raw acquisition and verification times</figcaption></figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-wrap findings-section" id="findings">
+      <div class="section-heading"><span class="section-index">06</span><h2>What the evidence says</h2></div>
+      <div class="findings-grid">
+        <article class="finding established"><p class="eyebrow">SUPPORTED BY THIS IMAGE</p><h3>Observed</h3><ul><li>The source hash was unchanged across the exercise.</li><li>The raw and E01 images were verified; the raw SHA-256 equals the source.</li><li>All four exports matched the listed reference lengths and hashes.</li><li>The deleted entry retains 161 bytes of text mentioning BUDGET.CSV and a USB device.</li></ul></article>
+        <article class="finding not-established"><p class="eyebrow">BEYOND THIS EXERCISE</p><h3>Not established</h3><ul><li>That any file was actually transferred.</li><li>Who wrote the note or used a device.</li><li>That authored names, times, or messages describe real events.</li><li>Any facts about a real person, suspect, or physical USB.</li></ul></article>
+      </div>
+      <p class="caution"><span aria-hidden="true">!</span> A recovered statement is an observation about synthetic image contents, not proof of the event it describes.</p>
+    </section>
+
+    <section class="section-wrap skills-section">
+      <div class="section-heading"><span class="section-index">07</span><h2>Skills &amp; limits</h2></div>
+      <div class="skills-layout">
+        <div><h3>Practised</h3><div class="skill-tags"><span>Evidence preservation</span><span>SHA-256 verification</span><span>Raw / E01 acquisition</span><span>FAT16 review</span><span>Deleted-entry examination</span><span>Export validation</span><span>Evidence-aware reporting</span></div></div>
+        <div class="limit-box"><h3>What this lab did not do</h3><p>The exercise re-acquired an existing disk image. I did not acquire physical media, use a hardware write blocker, or capture RAM. The image is synthetic; it has no real suspect or real data.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="section-wrap footer-inner">
+      <div><span class="footer-kicker">END OF CASE FILE</span><p class="footer-name">Evans Emmanuel Davou</p><p class="footer-course">300 Level Cybersecurity · NUTM · CYB 305</p></div>
+      <div class="footer-links"><a href="https://github.com/mrflames89-ai/Forensic-Acquisition-of-a-Synthetic-USB-Image-with-FTK-Imager-8.3" target="_blank" rel="noopener noreferrer">GitHub repository <span aria-hidden="true">↗</span></a><a href="https://evans-portfolio-2026.web.app" target="_blank" rel="noopener noreferrer">Portfolio <span aria-hidden="true">↗</span></a></div>
+      <p class="footer-disclaimer">Synthetic training material only. No real person, suspect, or user data is represented.</p>
+    </div>
+  </footer>
+
+  <dialog class="lightbox" aria-label="Screenshot viewer"><button class="lightbox-close" type="button" aria-label="Close image viewer">×</button><img alt=""><p></p></dialog>
+  <div class="sr-only" id="copy-status" aria-live="polite"></div>
+</body>
+</html>
