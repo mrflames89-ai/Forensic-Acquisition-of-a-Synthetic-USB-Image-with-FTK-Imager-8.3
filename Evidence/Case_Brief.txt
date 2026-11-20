@@ -1,0 +1,5 @@
+CYB305 WEEK 4  SYNTHETIC TRAINING CASE
+
+A company reports that a budget file may have been copied to a USB device. An existing image representing that device has been supplied for teaching. Your task is to preserve the supplied bytes, create a verified working copy and explain the limits of what can be concluded.
+
+This is a constructed teaching image. There is no real suspect. Its notes and timestamps are authored artefacts, not proof of real actions. The demonstration starts with an existing image file and does not acquire a physical USB or capture RAM.

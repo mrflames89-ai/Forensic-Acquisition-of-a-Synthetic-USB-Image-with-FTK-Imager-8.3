@@ -1,0 +1,102 @@
+CYB305 WEEK 4  COMMANDS FROM THE POWERPOINT
+
+Run in Windows PowerShell in the Demonstration folder. This is a convenience copy of the code on slides 5 to 31. Paste one block at a time. No execution policy changes or elevation are required. All actions apply to the supplied teaching image and newly created copies.
+
+SLIDE 5  PowerShell Session Preparation
+$ErrorActionPreference = 'Stop'
+Import-Module Microsoft.PowerShell.Utility
+$src = '.\Evidence\USB001_Source.dd'
+$map = Get-Content '.\Reference\Fixture_Map.json' -Raw |
+    ConvertFrom-Json
+$id = 'demo-' + [guid]::NewGuid().ToString('N').Substring(0,8)
+$run = Join-Path '.\Runs' $id
+New-Item -ItemType Directory -Path $run | Out-Null
+Start-Transcript -Path (Join-Path $run 'Demonstration.log')
+
+SLIDE 6  Baseline Check
+$baseline = Get-FileHash -LiteralPath $src -Algorithm SHA256
+(Get-Item -LiteralPath $src).Length
+$baseline.Hash -eq $map.sha256
+if ($baseline.Hash -ne $map.sha256) { throw 'Baseline mismatch' }
+
+SLIDE 9  Master and Working Copies
+$master = Join-Path $run 'Master.dd'
+$work = Join-Path $run 'Working.dd'
+Copy-Item -LiteralPath $src -Destination $master
+Copy-Item -LiteralPath $master -Destination $work
+
+SLIDE 10  Copy Verification
+$mh = (Get-FileHash $master -Algorithm SHA256).Hash
+$wh = (Get-FileHash $work -Algorithm SHA256).Hash
+$baseline.Hash -eq $mh
+$mh -eq $wh
+
+SLIDE 15  Rename Check
+$renamed = Join-Path $run 'Renamed.dd'
+Copy-Item -LiteralPath $work -Destination $renamed
+Rename-Item -LiteralPath $renamed -NewName 'A_Different_Name.dd'
+$renamed = Join-Path $run 'A_Different_Name.dd'
+$rh = (Get-FileHash $renamed -Algorithm SHA256).Hash
+$rh -eq $wh
+
+SLIDE 18  Controlled Edit on a Separate Copy
+$altered = Join-Path $run 'Altered.dd'
+Copy-Item -LiteralPath $work -Destination $altered
+$offset = [long]$map.change.offset
+$stream = [IO.File]::OpenWrite($altered)
+try {
+    $stream.Position = $offset
+    $stream.WriteByte(0x39)
+} finally { $stream.Dispose() }
+
+SLIDE 19  Altered Copy Verification
+(Get-Item $work).Length -eq (Get-Item $altered).Length
+$ah = (Get-FileHash $altered -Algorithm SHA256).Hash
+$wh -eq $ah
+$ah -eq $map.altered_sha256
+
+SLIDE 20  The Changed Bytes and File Contents
+$before = [IO.File]::ReadAllBytes($work)
+$after = [IO.File]::ReadAllBytes($altered)
+$before[$offset].ToString('X2')
+$after[$offset].ToString('X2')
+[Text.Encoding]::ASCII.GetString($before,1197056,67)
+[Text.Encoding]::ASCII.GetString($after,1197056,67)
+
+SLIDE 24  Visible File Contents Export
+$visible = Join-Path $run 'Visible_Files'
+New-Item -ItemType Directory -Path $visible | Out-Null
+foreach ($f in $map.files | Where-Object { !$_.deleted }) {
+    $start = [int]$f.offset
+    $end = $start + [int]$f.length - 1
+    [byte[]]$content = $before[$start..$end]
+    $target = Join-Path $visible $f.name
+    [IO.File]::WriteAllBytes($target,$content)
+}
+Get-ChildItem -LiteralPath $visible | Select-Object Name,Length
+
+SLIDE 25  Deleted Entry and Retained Content
+$f = $map.files | Where-Object { $_.deleted }
+$before[[int]$f.directory_offset].ToString('X2')
+$start = [int]$f.offset
+$end = $start + [int]$f.length - 1
+[byte[]]$deleted = $before[$start..$end]
+[Text.Encoding]::ASCII.GetString($deleted)
+[IO.File]::WriteAllBytes((Join-Path $run 'Recovered.txt'),$deleted)
+
+SLIDE 26  Slack and Unallocated Bytes
+$enc = [Text.Encoding]::ASCII
+$enc.GetString($before,[int]$map.slack.offset,26)
+$enc.GetString($before,[int]$map.unallocated.offset,32)
+
+SLIDE 31  Final Source Check and Record
+$endHash = (Get-FileHash $src -Algorithm SHA256).Hash
+$endHash -eq $baseline.Hash
+@(
+    [pscustomobject]@{Role='Source';SHA256=$endHash}
+    [pscustomobject]@{Role='Master';SHA256=$mh}
+    [pscustomobject]@{Role='Working';SHA256=$wh}
+    [pscustomobject]@{Role='Renamed';SHA256=$rh}
+    [pscustomobject]@{Role='Altered';SHA256=$ah}
+) | Export-Csv (Join-Path $run 'Hashes.csv') -NoTypeInformation
+Stop-Transcript
