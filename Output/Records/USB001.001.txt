@@ -1,0 +1,53 @@
+﻿Created By Exterro® FTK® Imager 8.3.0.27 
+
+Case Information: 
+Case Number: W4-USB001
+Evidence Number: USB001
+Unique description: Synthetic USB image
+Examiner: Evans Davou
+Notes: Existing image re-acquired for teaching. Raw format, full image scope.
+Encrypted Password : N/A
+
+Computer Name: NUTM-LAB-009
+Windows Edition: Windows 11 Pro
+Windows Version: Microsoft Windows 6.3.26300.9711
+OS build: 6.3.26300
+Processor: Intel(R) Core(TM) Ultra 5 125U
+Installed RAM: 16 GB
+
+--------------------------------------------------------------
+
+Information for C:\Users\CYBER LAB\Downloads\Week 4-20261112T094724Z-1-001\Week 4\Output\Raw\USB001:
+
+Physical Evidentiary Item (Source) Information:
+  [Device Info]
+    Source Type: Physical
+  [Drive Geometry]
+    Bytes per Sector: 512
+    Sector Count: 34,816
+  [Image]
+    Image Type: Raw (dd)
+    Source data size: 17 MB
+    Sector count:    34816
+  [Computed Hashes]
+    MD5 Hash:    f70f7f8931ca0bb2325ba8595d06a87d
+    SHA1 Hash:   76f032bd99471b4ad63f4f50343c13892d32d04a
+
+Verification Definitions:
+  Computed hash: The hash calculated of the source media during the creation or verify process
+  Stored verification hash: The hash calculated during image acquisition and stored inside the image
+  Report hash: The hash calculated during image acquisition and stored in the image summary report
+
+Image Information:
+  Acquisition started:   Thu Nov 12 11:19:56 2026 (2026-11-12T10:19:56Z)
+  Acquisition finished:  Thu Nov 12 11:19:56 2026 (2026-11-12T10:19:56Z)
+  Segment list:
+    C:\Users\CYBER LAB\Downloads\Week 4-20261112T094724Z-1-001\Week 4\Output\Raw\USB001.001
+
+Image Verification Results:
+  Verification started:  Thu Nov 12 11:19:56 2026 (2026-11-12T10:19:56Z)
+  Verification finished: Thu Nov 12 11:19:56 2026 (2026-11-12T10:19:56Z)
+  MD5 - Computed hash:             f70f7f8931ca0bb2325ba8595d06a87d : verified
+  MD5 - Report hash:               f70f7f8931ca0bb2325ba8595d06a87d : verified
+  SHA1 - Computed hash:            76f032bd99471b4ad63f4f50343c13892d32d04a : verified
+  SHA1 - Report hash:              76f032bd99471b4ad63f4f50343c13892d32d04a : verified

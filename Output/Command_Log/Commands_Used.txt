@@ -1,0 +1,41 @@
+CYB305 WEEK 4 - COMMANDS USED (Windows PowerShell, run from the Week 4 folder)
+Examiner: Evans Davou   Machine: NUTM-LAB-009   Date: 2026-11-12
+
+STEP 1  Baseline of source
+Get-FileHash -LiteralPath '.\Evidence\USB001_Source.dd' -Algorithm SHA256
+(Get-Item -LiteralPath '.\Evidence\USB001_Source.dd').Length
+
+STEP 4  Independent source-to-raw check
+Get-ChildItem .\Output\Raw
+$a = (Get-FileHash '.\Evidence\USB001_Source.dd' -Algorithm SHA256).Hash
+$b = (Get-FileHash '.\Output\Raw\USB001.001' -Algorithm SHA256).Hash
+$a; $b; $a -eq $b
+(Get-Item '.\Output\Raw\USB001.001').Length
+
+STEP 5b  E01 container hash (output folder was created as EO1, letter O)
+Get-ChildItem .\Output\EO1
+(Get-FileHash '.\Output\EO1\USB001_E01.E01' -Algorithm SHA256).Hash
+
+STEP 7  Live-file export check
+Get-ChildItem .\Output\Live_Exports | Select-Object Name,Length
+Get-ChildItem .\Output\Live_Exports -File | Where-Object { $_.Name -match '^(README|BUDGET|NOTES)' } | Get-FileHash -Algorithm SHA256 | Select-Object Hash,@{n='File';e={Split-Path $_.Path -Leaf}}
+
+STEP 8  Deleted-file export check
+Get-ChildItem .\Output\Deleted_Export | Select-Object Name,Length
+Get-ChildItem .\Output\Deleted_Export -File | Where-Object { $_.Name -match 'RANSFER' } | Get-FileHash -Algorithm SHA256 | Select-Object Hash,@{n='File';e={Split-Path $_.Path -Leaf}}
+
+STEP 9  Records and hash manifest
+New-Item -ItemType Directory -Force .\Output\Records | Out-Null
+Copy-Item '.\Output\Raw\USB001.001.txt' .\Output\Records\
+Copy-Item '.\Output\EO1\USB001_E01.E01.txt' .\Output\Records\
+$hashes = Get-ChildItem .\Output -Recurse -File | Where-Object { $_.Name -ne 'Output_Hashes.csv' } | Get-FileHash -Algorithm SHA256 | Select-Object Hash,@{n='File';e={$_.Path.Substring($_.Path.IndexOf('Output'))}}
+$hashes | Export-Csv .\Output\Records\Output_Hashes.csv -NoTypeInformation
+Select-String -Path .\Output\Records\USB001.001.txt -Pattern 'Acquisition (started|finished)|Verification (started|finished)'
+
+STEP 10  Final source check
+$end = (Get-FileHash -LiteralPath '.\Evidence\USB001_Source.dd' -Algorithm SHA256).Hash
+$end -eq 'A5172A7A71583D18365618FC5D8285EDED5D27E9B4CA7E8E6D3D3C68E0C1D26F'
+(Get-Item -LiteralPath '.\Evidence\USB001_Source.dd').Length
+
+FTK IMAGER ACTIONS (GUI): Add Evidence Item (Image File); Create Disk Image (Raw dd, then E01) with Verify images after
+they are created; Verify Drive/Image on the E01; Export Files (live files, then deleted entry); Export Directory Listing.
